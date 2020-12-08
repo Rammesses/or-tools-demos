@@ -8,7 +8,7 @@ namespace _01_simplest_case
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("OR-Tools Travelling Salesman Solution");
+            Console.WriteLine("OR-Tools - 01 Simplest Case");
 
             // set up the problem
             var problem = new ProblemModel();
@@ -16,7 +16,7 @@ namespace _01_simplest_case
             var manager = new RoutingIndexManager(
                 problem.DistanceMatrix.GetLength(0),
                 problem.Vehicles,
-                problem.Depot);
+                (int)problem.Depot);
 
             var routing = new RoutingModel(manager);
 
@@ -26,10 +26,10 @@ namespace _01_simplest_case
                   {
                       // Convert from routing variable Index to distance matrix NodeIndex.
                       var fromNode = manager.IndexToNode(fromIndex);
-                      var fromCity = Enum.GetName(typeof(ProblemModel.Cities), fromNode);
+                      var fromCity = Enum.GetName(typeof(City), fromNode);
 
                       var toNode = manager.IndexToNode(toIndex);
-                      var toCity = Enum.GetName(typeof(ProblemModel.Cities), fromNode);
+                      var toCity = Enum.GetName(typeof(City), fromNode);
 
                       // pull the correct distance from the matrix
                       var distance = problem.DistanceMatrix[fromNode, toNode];
@@ -69,7 +69,7 @@ namespace _01_simplest_case
             while (routing.IsEnd(index) == false)
             {
                 var node = manager.IndexToNode((int)index);
-                var city = Enum.GetName(typeof(ProblemModel.Cities), node);
+                var city = Enum.GetName(typeof(City), node);
                 Console.Write($"{city} ({node}) -> ");
 
                 var previousIndex = index;
@@ -79,7 +79,7 @@ namespace _01_simplest_case
             }
 
             var lastNode = manager.IndexToNode((int)index);
-            var lastCity = Enum.GetName(typeof(ProblemModel.Cities), lastNode);
+            var lastCity = Enum.GetName(typeof(City), lastNode);
 
             Console.WriteLine($"{lastCity} ({lastNode})");
             Console.WriteLine("Route distance: {0}miles", routeDistance);

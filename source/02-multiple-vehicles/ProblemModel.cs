@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using Google.OrTools.ConstraintSolver;
 
-namespace _01_simplest_case
+namespace _02_multiple_vehicles
 {
     public partial class ProblemModel
     {
@@ -21,7 +21,10 @@ namespace _01_simplest_case
             {1972, 579, 1260, 987, 371, 999, 701, 2099, 600, 1162, 1200, 504, 0},
         };
 
-        public int Vehicles = 1;
+        public int NumberOfCities => DistanceMatrix.GetLength(0);
+
+        public int Vehicles = 2;
+
         public City Depot = City.New_York;
     }
 }
