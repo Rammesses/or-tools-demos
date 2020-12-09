@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using Google.OrTools.ConstraintSolver;
+using Google.Protobuf.WellKnownTypes;
+using Kurukuru;
 
 namespace _02_multiple_vehicles
 {
     class Program
     {
-        const string dimensionName = @"Minimise Vehicle Distance";
-        const int maximumSlackPerVehicle = 0;
-        const int maximumDistancePerVehicle = 3000; // maximum distance per vericle
-        const bool startCumulativeCalculationAtZeroPerVehicle = true; // why wouldn't you start at 0?!
-        const int costCoefficient = 100; // makes the solver minimise the length of the longest route
-
         static void Main(string[] args)
         {
             Console.WriteLine("OR-Tools - 02 Multiple Vehicles");
@@ -20,7 +16,7 @@ namespace _02_multiple_vehicles
             var problem = new ProblemModel();
 
             var manager = new RoutingIndexManager(
-                problem.NumberOfCities,
+                problem.DistanceMatrix.GetLength(0),
                 problem.Vehicles,
                 (int)problem.Depot);
 
@@ -29,36 +25,51 @@ namespace _02_multiple_vehicles
             // register the distance callback (and capture its index)
             var transitCallbackIndex = routing.RegisterTransitCallback(
                 (long fromIndex, long toIndex) =>
-                  {
-                      // Convert from routing variable Index to distance matrix NodeIndex.
-                      var fromNode = manager.IndexToNode(fromIndex);
-                      var toNode = manager.IndexToNode(toIndex);
+                {
+                    // Convert from routing variable Index to distance matrix NodeIndex.
+                    var fromNode = manager.IndexToNode(fromIndex);
+                    var fromCity = System.Enum.GetName(typeof(City), fromNode);
 
-                      // pull the correct distance from the matrix
-                      var distance = problem.DistanceMatrix[fromNode, toNode];
-                      return distance;
-                  });
+                    var toNode = manager.IndexToNode(toIndex);
+                    var toCity = System.Enum.GetName(typeof(City), fromNode);
+
+                    // pull the correct distance from the matrix
+                    var distance = problem.DistanceMatrix[fromNode, toNode];
+
+                    Debug.WriteLine($" - {fromCity} ({fromNode}) -> {toCity} ({toNode}) - {distance} miles");
+
+                    return distance;
+                });
 
             // TSP rates the "cost" of a route on distance only, so we can use the
             // callback set up above
             routing.SetArcCostEvaluatorOfAllVehicles(transitCallbackIndex);
 
-            // Add a Dimension to minimise the distance _for each vehicle_
-            routing.AddDimension(
-                transitCallbackIndex, 
-                maximumSlackPerVehicle, 
-                maximumDistancePerVehicle,
-                startCumulativeCalculationAtZeroPerVehicle,
-                dimensionName);
-
-            RoutingDimension distanceDimension = routing.GetMutableDimension(dimensionName);
-            distanceDimension.SetGlobalSpanCostCoefficient(costCoefficient);
+            routing.AddDimension(transitCallbackIndex, 0, 3000,true, "Distance");
+            var distanceDimension = routing.GetMutableDimension("Distance");
+            distanceDimension.SetGlobalSpanCostCoefficient(100);
 
             var searchParameters = operations_research_constraint_solver.DefaultRoutingSearchParameters();
             searchParameters.FirstSolutionStrategy =
-              FirstSolutionStrategy.Types.Value.PathCheapestArc;
+              FirstSolutionStrategy.Types.Value.Automatic;
+            searchParameters.TimeLimit = new Duration { Seconds = 60 };
 
-            var solution = routing.SolveWithParameters(searchParameters);
+            Assignment solution = null;
+            Spinner.Start($"Solving TSB for {problem.Vehicles} vehicle(s)...", spinner =>
+            {
+                var timer = Stopwatch.StartNew();
+                solution = routing.SolveWithParameters(searchParameters);
+
+                if (solution != null)
+                {
+                    spinner.Succeed($"Solved TSP  for {problem.Vehicles} vehicle(s) in {timer.Elapsed}.");
+                }
+                else
+                {
+                    spinner.Fail($"Failed to find a TSP solution for {problem.Vehicles} vehicle(s) after {timer.Elapsed}");
+                }
+            });
+
             PrintSolution(problem, routing, manager, solution);
         }
 
@@ -66,25 +77,27 @@ namespace _02_multiple_vehicles
         ///   Print the solution.
         /// </summary>
         static void PrintSolution(
-
-            in ProblemModel problem,
+            in ProblemModel model,
             in RoutingModel routing,
             in RoutingIndexManager manager,
             in Assignment solution)
         {
+            if (solution == null)
+            {
+                Console.WriteLine("No solution found.");
+                return;
+            }
 
             long maxRouteDistance = 0;
-            for (int vehicleIndex = 0; vehicleIndex < problem.Vehicles; ++vehicleIndex)
+            for (int i = 0; i < model.Vehicles; ++i)
             {
-                Console.Write($"Route for Vehicle #{vehicleIndex}: ");
-
+                Console.WriteLine("Route for Vehicle {0}:", i);
                 long routeDistance = 0;
-
-                var index = routing.Start(vehicleIndex);
+                var index = routing.Start(i);
                 while (routing.IsEnd(index) == false)
                 {
                     var node = manager.IndexToNode((int)index);
-                    var city = Enum.GetName(typeof(City), node);
+                    var city = System.Enum.GetName(typeof(City), node);
                     Console.Write($"{city} ({node}) -> ");
 
                     var previousIndex = index;
@@ -93,14 +106,14 @@ namespace _02_multiple_vehicles
                 }
 
                 var lastNode = manager.IndexToNode((int)index);
-                var lastCity = Enum.GetName(typeof(City), lastNode);
-                Console.WriteLine($"{lastCity} ({lastNode})");
+                var lastCity = System.Enum.GetName(typeof(City), lastNode);
 
-                Console.WriteLine($"Route distance for Vehicle #{vehicleIndex} : {routeDistance} miles");
+                Console.WriteLine($"{lastCity} ({lastNode})");
+                Console.WriteLine("Distance of the route: {0}m", routeDistance);
                 maxRouteDistance = Math.Max(routeDistance, maxRouteDistance);
             }
 
-            Console.WriteLine("Maximum distance of any route: {0}m", maxRouteDistance);        
+            Console.WriteLine("\nMaximum distance of any route: {0}m", maxRouteDistance);
         }
     }
 }
