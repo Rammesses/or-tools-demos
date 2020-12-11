@@ -11,19 +11,29 @@ namespace _04_recommending_a_vehicle
         {
         }
 
-        public static ProblemModel Create()
+        public static RecommendationModel Create()
         {
             var problem = new RecommendationModel();
 
-            problem.AddVehicleRoute("Bob")
-                .LeavingFrom("RG1 1AA")
-                .WithShift(Shift.StartingAt(TimeOfDay.At("09:00:00"))
-                                .EndingAt(TimeOfDay.At("17:00:00")))
-                .WithAppointment(Appointment.At("RG2 2BB")
-                                            .Between(TimeOfDay.At("09:00:00"), TimeOfDay.At("12:00:00")))
-                .WithAppointment(Appointment.At("RG3 3CC")
-                                            .Between(TimeOfDay.At("09:00:00"), TimeOfDay.At("12:00:00")))
-                .ReturningToStart();
+            var bobsShift = Shift.StartingAt(TimeOfDay.At("09:00:00"))
+                                .EndingAt(TimeOfDay.At("17:00:00"));
+
+            var bobsRoute = problem.AddVehicleRoute("Bob")
+                                   .WithShift(bobsShift)
+                                   .LeavingFrom("RG1 1AA")
+                                   .ReturningToStart();
+
+            var appointment1 =
+                Appointment.At("RG2 2BB")
+                           .Between(TimeOfDay.At("09:00:00"),
+                                    TimeOfDay.At("12:00:00"));
+            bobsRoute.WithAppointment(appointment1);
+
+            var appointment2 =
+                Appointment.At("RG3 3CC")
+                           .Between(TimeOfDay.At("09:00:00"),
+                                    TimeOfDay.At("12:00:00"));
+            bobsRoute.WithAppointment(appointment2);
 
             problem.AddVehicleRoute("Eric")
                 .LeavingFrom("RG1 1AA")

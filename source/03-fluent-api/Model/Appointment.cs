@@ -23,6 +23,7 @@ namespace _03_fluent_api.Model
 
         public string Postcode => this.Location?.Postcode;
 
+        public override string ToString() => $"{this.Postcode} ({this.Window})";
         internal void SetWindow(AppointmentWindow window) => this.Window = window;
     }
 

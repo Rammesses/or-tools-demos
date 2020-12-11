@@ -10,9 +10,9 @@ namespace _03_fluent_api.Model
 
     public abstract class ProblemModel : IProblemModel
     {
-        public VehicleCollection Vehicles => throw new NotImplementedException();
+        public virtual VehicleCollection Vehicles { get; protected set; } = new VehicleCollection();
 
-        public RouteCollection Routes => throw new NotImplementedException();
+        public virtual RouteCollection Routes { get; protected set; } = new RouteCollection();
     }
 
 }

@@ -17,6 +17,8 @@ namespace _03_fluent_api.Model
             this.internalValue = TimeSpan.Parse(time);
         }
 
+        public override string ToString() => $"{internalValue:g}";
+
         public int CompareTo(TimeOfDay other)
         {
             if (other == null) return 1;

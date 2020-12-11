@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace _03_fluent_api.Model
 {
@@ -17,6 +18,17 @@ namespace _03_fluent_api.Model
         }
 
         public string Postcode { get; }
+
+        public override string ToString() => this.Postcode;
+    }
+
+    public class LocationCollection : HashSet<ILocation>
+    {
+        public LocationCollection() : base()
+        { }
+
+        public LocationCollection(IEnumerable<ILocation> source) : base(source)
+        { }
     }
 
     public static class LocationExtensions
@@ -24,6 +36,11 @@ namespace _03_fluent_api.Model
         public static INode AsNode(this ILocation location, int nodeIndex)
         {
             return new Node(location, nodeIndex);
+        }
+
+        public static LocationCollection AsCollection(this IEnumerable<ILocation> source)
+        {
+            return new LocationCollection(source);
         }
     }
 }

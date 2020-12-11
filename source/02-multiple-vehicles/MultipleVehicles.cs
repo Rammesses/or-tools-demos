@@ -6,11 +6,11 @@ using Kurukuru;
 
 namespace _02_multiple_vehicles
 {
-    class Program
+    class MultipleVehicles
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("OR-Tools - 02 Multiple Vehicles");
+            Console.WriteLine("OR-Tools - 02 Multiple Vehicles (VRP)");
 
             // set up the problem
             var problem = new ProblemModel();
@@ -55,18 +55,18 @@ namespace _02_multiple_vehicles
             searchParameters.TimeLimit = new Duration { Seconds = 60 };
 
             Assignment solution = null;
-            Spinner.Start($"Solving TSB for {problem.Vehicles} vehicle(s)...", spinner =>
+            Spinner.Start($"Solving VRP for {problem.Vehicles} vehicle(s)...", spinner =>
             {
                 var timer = Stopwatch.StartNew();
                 solution = routing.SolveWithParameters(searchParameters);
 
                 if (solution != null)
                 {
-                    spinner.Succeed($"Solved TSP  for {problem.Vehicles} vehicle(s) in {timer.Elapsed}.");
+                    spinner.Succeed($"Solved VRP  for {problem.Vehicles} vehicle(s) in {timer.Elapsed}.");
                 }
                 else
                 {
-                    spinner.Fail($"Failed to find a TSP solution for {problem.Vehicles} vehicle(s) after {timer.Elapsed}");
+                    spinner.Fail($"Failed to find a VRP solution for {problem.Vehicles} vehicle(s) after {timer.Elapsed}");
                 }
             });
 
@@ -91,7 +91,7 @@ namespace _02_multiple_vehicles
             long maxRouteDistance = 0;
             for (int i = 0; i < model.Vehicles; ++i)
             {
-                Console.WriteLine("Route for Vehicle {0}:", i);
+                Console.WriteLine("\nRoute for Vehicle {0}:", i);
                 long routeDistance = 0;
                 var index = routing.Start(i);
                 while (routing.IsEnd(index) == false)

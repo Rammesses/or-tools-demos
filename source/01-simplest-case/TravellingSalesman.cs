@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
 using Google.OrTools.ConstraintSolver;
+using Kurukuru;
 
 namespace _01_simplest_case
 {
-    class Program
+    class TravellingSalesman
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("OR-Tools - 01 Simplest Case");
+            Console.WriteLine("OR-Tools - 01 Simplest Case (TSP)");
 
             // set up the problem
             var problem = new ProblemModel();
@@ -47,7 +48,23 @@ namespace _01_simplest_case
             searchParameters.FirstSolutionStrategy =
               FirstSolutionStrategy.Types.Value.Automatic;
 
-            var solution = routing.SolveWithParameters(searchParameters);
+            Assignment solution = null;
+
+            Spinner.Start($"Solving TSP...", spinner =>
+            {
+                var timer = Stopwatch.StartNew();
+                solution = routing.SolveWithParameters(searchParameters);
+
+                if (solution != null)
+                {
+                    spinner.Succeed($"Solved TSP in {timer.Elapsed}.");
+                }
+                else
+                {
+                    spinner.Fail($"Failed to find a TSP solution after {timer.Elapsed}");
+                }
+            });
+
             PrintSolution(routing, manager, solution);
         }
 
@@ -59,7 +76,13 @@ namespace _01_simplest_case
             in RoutingIndexManager manager,
             in Assignment solution)
         {
-            Console.WriteLine($"Objective: {solution.ObjectiveValue()} miles");
+            if (solution == null)
+            {
+                Console.WriteLine("No solution found.");
+                return;
+            }
+
+            Console.WriteLine($"/nObjective: {solution.ObjectiveValue()} miles");
 
             Console.Write("Route: ");
 

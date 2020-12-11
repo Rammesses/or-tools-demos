@@ -27,6 +27,8 @@ namespace _03_fluent_api.Model
 
         public TimeOfDay Start { get; }
         public TimeOfDay End { get; }
+
+        public override string ToString() => $"{Start}-{End}";
     }
 
     public static class AppointmentWindowExtensions

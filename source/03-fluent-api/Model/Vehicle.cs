@@ -24,6 +24,8 @@ namespace _03_fluent_api.Model
                 shift.Start < this.Shift.Start ? shift.Start : this.Shift.Start,
                 shift.End > this.Shift.End ? shift.End : this.Shift.End);
         }
+
+        public override string ToString() => $"Vehicle #{this.VehicleId}";
     }
 
     public class VehicleCollection : HashSet<IVehicle>
