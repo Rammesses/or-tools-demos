@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace _03_fluent_api.Model
 {
@@ -10,8 +9,6 @@ namespace _03_fluent_api.Model
 
     public class Location : ILocation
     {
-        private string location;
-
         public Location(string postcode)
         {
             this.Postcode = postcode;

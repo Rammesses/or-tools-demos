@@ -30,22 +30,29 @@ namespace _04_recommending_a_vehicle
             {
 
                 var vehicleRoute = Problem.Routes.For(vehicle);
+                Console.Write("\n\nProblem: ");
                 vehicleRoute.Print();
 
+                SolutionRoute initialSolution = null;
+                SolutionRoute updatedSolution = null;
                 Spinner.Start($"Routing vehicle {vehicle}...", spinner =>
                 {
                     var timer = Stopwatch.StartNew();
-                    var initialSolution = this.SolveRoute(vehicleRoute);
-                    initialSolution.Print();
-
+                    initialSolution = this.SolveRoute(vehicleRoute.Clone());
+                    
                     vehicleRoute.Add(appointmentToAdd);
-                    var updatedSolution = this.SolveRoute(vehicleRoute);
-                    updatedSolution.Print();
-
+                    var updatedSolution = this.SolveRoute(vehicleRoute.Clone());
+                    
                     solutionSet.Add(vehicle, initialSolution, updatedSolution);
 
                     spinner.Succeed($"Solved initial and updated routes for {vehicle} in {timer.Elapsed}.");
                 });
+
+                Console.Write("Initial: ");
+                initialSolution.Print();
+
+                Console.Write("Updated: ");
+                updatedSolution.Print();
             }
 
             // choose our recommendation based on the difference in distance metric...
@@ -65,20 +72,45 @@ namespace _04_recommending_a_vehicle
 
             var parameters = new RoutingModelParameters();
 
-            var solver = new RoutingModel(indexManager, parameters);
+            var solver = new RecommendationSolver(indexManager, parameters);
 
             solver.AddElapsedTimeEvaluator(indexManager, routeToSolve);
             //solver.AddAllowedTotalTravelTimeEvaluator(Problem);
             //solver.AddAllowedTravelTimeEvaluator(Problem);
             //solver.AddTravelTimeCostEvaluator(Problem);
 
+            var etaEvaluatorIndex = solver.GetEvaluatorIndex(nameof(TravelDistanceEvaluator));
+            solver.SetArcCostEvaluatorOfAllVehicles(etaEvaluatorIndex);
+
             var solution = solver.Solve();
 
+            var distance = CalculateRouteDistance(indexManager, solver, solution);
+            var solvedRoute = GetSolvedRoute(indexManager, solver, solution, routeToSolve);
+
             var solutionRoute = new SolutionRoute(
-                routeToSolve,
-                solution,
-                a => CalculateRouteDistance(indexManager, solver, a));
+                solvedRoute,
+                distance);
             return solutionRoute;
+        }
+
+        private IRoute GetSolvedRoute(RoutingIndexManager manager, RoutingModel routing, Assignment solution, IRoute routeToSolve)
+        {
+            var solvedRoute = new Route(routeToSolve.Vehicle);
+
+            var index = routing.Start(0);
+            while (routing.IsEnd(index) == false)
+            {
+                var nodeIndex = manager.IndexToNode((int)index);
+
+                var node = routeToSolve.Nodes[nodeIndex];
+                var location = node.Location;
+
+                Debug.WriteLine($"Adding {location}");
+                solvedRoute.Add(location);
+                index = solution.Value(routing.NextVar(index));
+            }
+
+            return solvedRoute;
         }
 
         private int CalculateRouteDistance(

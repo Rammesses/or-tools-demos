@@ -1,6 +1,7 @@
 ﻿using System;
 using _03_fluent_api.Model;
 using _03_fluent_api.Services;
+using _04_recommending_a_vehicle.Model;
 using Google.OrTools.ConstraintSolver;
 
 namespace _04_recommending_a_vehicle.Evaluators
@@ -41,8 +42,8 @@ namespace _04_recommending_a_vehicle.Evaluators
 
     public static class TravelDistanceEvaluatorExtensions
     {
-        public static RoutingModel AddElapsedTimeEvaluator(
-            this RoutingModel model, RoutingIndexManager indexManager, IRoute routeToSolve)
+        public static RecommendationSolver AddElapsedTimeEvaluator(
+            this RecommendationSolver model, RoutingIndexManager indexManager, IRoute routeToSolve)
         {
             var evaluator = new TravelDistanceEvaluator(indexManager, routeToSolve);
             var index = model.RegisterTransitCallback(evaluator.Run);

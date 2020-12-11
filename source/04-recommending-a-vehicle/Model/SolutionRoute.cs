@@ -8,17 +8,15 @@ namespace _04_recommending_a_vehicle.Model
     public class SolutionRoute : Route
     {
         public SolutionRoute(
-            IRoute routeToSolve,
-            Assignment solution,
-            Func<Assignment, int> distanceCalculator)
+            IRoute solvedRoute,
+            int distance)
         {
-            RouteToSolve = routeToSolve;
-            Solution = solution;
-            Distance = distanceCalculator(solution);
+            SolvedRoute = solvedRoute.Clone();
+            Distance = distance;            
         }
 
         public int Distance { get; }
-        public IRoute RouteToSolve { get; }
+        public IRoute SolvedRoute { get; }
         public Assignment Solution { get; }
     }
 

@@ -13,6 +13,7 @@ namespace _03_fluent_api.Model
         NodeCollection Nodes { get; }
 
         void Add(IAppointment appointment);
+        void Add(ILocation location);
 
         ILocation this[int index]
         {
@@ -44,6 +45,16 @@ namespace _03_fluent_api.Model
             this.Appointments.Add(appointment);
         }
 
+        public void Add(INode node)
+        {
+            this.Appointments.Add(new Appointment(node.Location, AppointmentWindow.Default));
+        }
+
+        public void Add(ILocation location)
+        {
+            this.Appointments.Add(new Appointment(location, AppointmentWindow.Default));
+        }
+
         public NodeCollection Nodes => GetNodes();
         public LocationCollection Locations => Nodes.Select(n => n.Location).AsCollection();
 
@@ -61,9 +72,9 @@ namespace _03_fluent_api.Model
             }
 
             var endNode = (EndLocation != StartLocation) ?
-                EndLocation.AsNode(nodes.Count) :
-                StartLocation.AsNode(nodes.Count);
-
+                EndLocation.AsNode(++index) :
+                StartLocation.AsNode(++index);
+            nodes.Add(endNode);
             return nodes;
         }
 
@@ -97,15 +108,38 @@ namespace _03_fluent_api.Model
     {
         public static void Print(this IRoute route)
         {
+            if (route == null)
+            {
+                Console.WriteLine("No Route");
+                return;
+            }
+
             Console.Write($"{route.Vehicle} :");
+
+            var firstLocation = route.First();
+            var lastLocation = route.Last();
+
+            var index = 0;
             foreach (var location in route)
             {
-                var separator = (location != route.EndLocation) ?
-                    " => " : string.Empty;
-                Console.Write($"{location} {separator}");
+                var separator = location != lastLocation && index++ > 0 ? "=>" : string.Empty;
+                Console.Write($"{location} {separator} ");
             }
 
             Console.WriteLine($" ({route.Nodes.Count} nodes)");
+        }
+
+        public static IRoute Clone(this IRoute source)
+        {
+            var clone = new Route(source.Vehicle);
+            clone.SetStartLocation(source.StartLocation);
+            clone.SetEndLocation(source.EndLocation);
+            foreach (var node in source.Nodes.Where(n => n.Location != source.StartLocation && n.Location != source.EndLocation))
+            {
+                clone.Add(node);
+            }
+
+            return clone;
         }
     }
 }

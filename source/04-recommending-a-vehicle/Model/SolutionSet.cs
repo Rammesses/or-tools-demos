@@ -22,7 +22,6 @@ namespace _04_recommending_a_vehicle.Model
         public SolutionSetItem(IVehicle vehicle, SolutionRoute initialSolution, SolutionRoute updatedSolution)
             : base(vehicle, initialSolution, updatedSolution)
         {
-
         }
 
         public IVehicle Vehicle => base.Item1;
@@ -37,8 +36,8 @@ namespace _04_recommending_a_vehicle.Model
         public static Solution AsSolution(this SolutionSet solutionSet, Func<SolutionSet, SolutionSetItem> optimiser)
         {
             var consideredSolutions = solutionSet.Select(s => s.UpdatedSolution).AsCollection();
-            var optimalSolution = optimiser(solutionSet);
-            return new Solution(consideredSolutions, optimalSolution.UpdatedSolution);
+            var optimalSolution = optimiser(solutionSet).UpdatedSolution;
+            return new Solution(consideredSolutions, optimalSolution);
         }
     }
 }

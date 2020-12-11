@@ -31,7 +31,7 @@ namespace _03_fluent_api.Model
                 return 1;
             }
 
-            return (other.Index - this.Index); 
+            return (this.Index - other.Index); 
         }
 
         public int CompareTo(object obj)
@@ -68,10 +68,33 @@ namespace _03_fluent_api.Model
         }
 
         #endregion
+
+        public override string ToString()
+        {
+            return $"{Location} ({Index})";
+        }
     }
 
     public class NodeCollection : SortedSet<INode>
     {
         public INode this[int index] => this.ToList()[index];
+    }
+
+    public static class NodeExtensions
+    {
+        public static void Print(this NodeCollection nodes)
+        {
+            var firstNode = nodes.First();
+            var lastNode = nodes.Last();
+
+            var index = 0;
+            foreach (var node in nodes)
+            {
+                var separator = node != lastNode && index++ > 0 ? "=>" : string.Empty;
+                Console.Write($"{node} {separator} ");
+            }
+
+            Console.WriteLine($" ({nodes.Count} nodes)");
+        }
     }
 }
