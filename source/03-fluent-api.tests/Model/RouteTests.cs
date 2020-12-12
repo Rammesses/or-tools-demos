@@ -16,13 +16,21 @@ namespace _03_fluent_api.tests.Model
         }
 
         [TestMethod]
-        public void SettingStartLocationAddsStartAndEndAppointments()
+        public void SettingStartLocationDoesNotAddAnAppointment()
         {
             var route = new Route(new Vehicle("Dummy"));
             route.SetStartLocation(new Location("AB1 1AB"));
 
-            route.Appointments.Count().Should().Be(2);
-            route.Appointments.First().Location.Should().Be(route.Appointments.Last().Location);
+            route.Appointments.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void SettingEndLocationDoesNotAddAnAppointment()
+        {
+            var route = new Route(new Vehicle("Dummy"));
+            route.SetEndLocation(new Location("AB1 1AB"));
+
+            route.Appointments.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -32,7 +40,7 @@ namespace _03_fluent_api.tests.Model
             route.SetStartLocation(new Location("AB1 1AB"));
 
             route.Nodes.Count().Should().Be(2);
-            route.Nodes.First().Location.Should().Be(route.Nodes.Last().Location);
+            route.Nodes.First().Location.Postcode.Should().Be(route.Nodes.Last().Location.Postcode);
         }
     }
 }
