@@ -28,10 +28,6 @@ namespace _03_fluent_api.Model
 
         public static IRoute For(IVehicle vehicle) => new Route(vehicle);
 
-        public Route()
-        {
-        }
-
         public Route(IVehicle vehicle)
         {
             Vehicle = vehicle;
@@ -47,7 +43,17 @@ namespace _03_fluent_api.Model
 
         public void Add(INode node)
         {
-            this.Appointments.Add(new Appointment(node.Location, AppointmentWindow.Default));
+            IAppointment nodeAppointment = new Appointment(node.Location, AppointmentWindow.Default);
+            this.Appointments.Add(nodeAppointment);
+
+            var nodeIndex = (this.EndLocation != null) ? this.Nodes.Count - 1 : this.Nodes.Count;
+            if (this.EndLocation != null)
+            {
+                this.Nodes.Insert(nodeIndex, nodeAppointment.AsNode(nodeIndex));
+                return;
+            }
+
+            this.Nodes.Add(nodeAppointment.AsNode(nodeIndex));
         }
 
         public void Add(ILocation location)
@@ -55,37 +61,44 @@ namespace _03_fluent_api.Model
             this.Appointments.Add(new Appointment(location, AppointmentWindow.Default));
         }
 
-        public NodeCollection Nodes => GetNodes();
+        public NodeCollection Nodes { get; } = new NodeCollection();
+
         public LocationCollection Locations => Nodes.Select(n => n.Location).AsCollection();
 
         public ILocation this[int index] => Nodes[index].Location;
 
-        internal NodeCollection GetNodes()
-        {
-            var nodes = new NodeCollection();
-            nodes.Add(StartLocation.AsNode(0));
-
-            var index = 0;
-            foreach (var appointment in this.Appointments)
-            {
-                nodes.Add(appointment.AsNode(++index));
-            }
-
-            var endNode = (EndLocation != StartLocation) ?
-                EndLocation.AsNode(++index) :
-                StartLocation.AsNode(++index);
-            nodes.Add(endNode);
-            return nodes;
-        }
-
         internal void SetStartLocation(ILocation startLocation)
         {
+            var originalStartLocation = this.StartLocation;
+            if (originalStartLocation != null)
+            {
+                this.Nodes.RemoveAt(0);
+            }
+
             this.StartLocation = startLocation;
+
+            // this is where you use the Vehicle shift
+            IAppointment startAppointment = new Appointment(startLocation, AppointmentWindow.Default);
+            this.Nodes.Insert(0, startAppointment.AsNode(0));
+
+            if (this.EndLocation == null || this.EndLocation == originalStartLocation)
+            {
+                this.SetEndLocation(startLocation);
+            }
         }
 
         internal void SetEndLocation(ILocation endLocation)
         {
+            var originalEndLocation = this.EndLocation;
+            if (originalEndLocation != null)
+            {
+                this.Nodes.RemoveAt(this.Nodes.Count - 1);
+            }
+
             this.EndLocation = endLocation;
+
+            IAppointment endAppointment = new Appointment(endLocation, AppointmentWindow.Default);
+            this.Nodes.Add(endAppointment.AsNode(this.Nodes.Count));
         }
 
         public IEnumerator<ILocation> GetEnumerator()
@@ -108,7 +121,7 @@ namespace _03_fluent_api.Model
     {
         public static void Print(this IRoute route)
         {
-            if (route == null)
+            if (route == null || !route.Any())
             {
                 Console.WriteLine("No Route");
                 return;

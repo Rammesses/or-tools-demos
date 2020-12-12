@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
+
 namespace _03_fluent_api.Model
 {
     public interface IAppointmentWindow
@@ -7,7 +9,7 @@ namespace _03_fluent_api.Model
         TimeOfDay End { get; }
     }
 
-    public class AppointmentWindow : IAppointmentWindow
+    public class AppointmentWindow : IAppointmentWindow, IComparable<IAppointmentWindow>, IComparable
     {
         public static IAppointmentWindow Default = new AppointmentWindow(TimeOfDay.At("07:00:00"), TimeOfDay.At("22:00:00"));
         public static IAppointmentWindow StartingAt(TimeOfDay start) => new AppointmentWindow(start, Default.End);
@@ -27,6 +29,55 @@ namespace _03_fluent_api.Model
 
         public TimeOfDay Start { get; }
         public TimeOfDay End { get; }
+
+        #region IComparable / IComparable<IAppointmentWindow> implementation
+
+        public int CompareTo([AllowNull] IAppointmentWindow other)
+        {
+            if (other == null)
+            {
+                return 1;
+            }
+
+            var start = this.Start.CompareTo(other.Start);
+            var end = this.End.CompareTo(other.End);
+            return Math.Max(start, end);
+        }
+
+        public int CompareTo(object obj)
+        {
+            var other = obj as IAppointmentWindow;
+            if (other == null)
+                return 1;
+
+            return this.CompareTo(other);
+        }
+
+        // Define the is greater than operator.
+        public static bool operator >(AppointmentWindow operand1, IAppointmentWindow operand2)
+        {
+            return operand1.CompareTo(operand2) == 1;
+        }
+
+        // Define the is less than operator.
+        public static bool operator <(AppointmentWindow operand1, IAppointmentWindow operand2)
+        {
+            return operand1.CompareTo(operand2) == -1;
+        }
+
+        // Define the is greater than or equal to operator.
+        public static bool operator >=(AppointmentWindow operand1, IAppointmentWindow operand2)
+        {
+            return operand1.CompareTo(operand2) >= 0;
+        }
+
+        // Define the is less than or equal to operator.
+        public static bool operator <=(AppointmentWindow operand1, IAppointmentWindow operand2)
+        {
+            return operand1.CompareTo(operand2) <= 0;
+        }
+
+        #endregion
 
         public override string ToString() => $"{Start}-{End}";
     }

@@ -1,11 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace _03_fluent_api.Model
 {
     public interface IAppointment
-    { }
+    {
+        ILocation Location {get;}
+        IAppointmentWindow Window { get; }
+    }
 
-    public class Appointment : IAppointment, ILocation
+
+    public class Appointment : IAppointment, ILocation, IComparable<IAppointment>, IComparable
     {
         public static IAppointment At(string location) => new Appointment(new Location(location), AppointmentWindow.Default);
 
@@ -23,8 +29,58 @@ namespace _03_fluent_api.Model
 
         public string Postcode => this.Location?.Postcode;
 
-        public override string ToString() => $"{this.Postcode} ({this.Window})";
         internal void SetWindow(AppointmentWindow window) => this.Window = window;
+
+        #region IComparable / IComparable<IAppointment> implementation
+
+        public int CompareTo([AllowNull] IAppointment other)
+        {
+            if (other == null)
+            {
+                return 1;
+            }
+
+            var locationCmp = ((Location)this.Location).CompareTo(other.Location);
+            var windowCmp = ((AppointmentWindow)this.Window).CompareTo(other.Window);
+            return Math.Max(locationCmp, windowCmp);
+        }
+
+        public int CompareTo(object obj)
+        {
+            var other = obj as IAppointment;
+            if (other == null)
+                return 1;
+
+            return this.CompareTo(other);
+        }
+
+        // Define the is greater than operator.
+        public static bool operator >(Appointment operand1, IAppointment operand2)
+        {
+            return operand1.CompareTo(operand2) == 1;
+        }
+
+        // Define the is less than operator.
+        public static bool operator <(Appointment operand1, IAppointment operand2)
+        {
+            return operand1.CompareTo(operand2) == -1;
+        }
+
+        // Define the is greater than or equal to operator.
+        public static bool operator >=(Appointment operand1, IAppointment operand2)
+        {
+            return operand1.CompareTo(operand2) >= 0;
+        }
+
+        // Define the is less than or equal to operator.
+        public static bool operator <=(Appointment operand1, IAppointment operand2)
+        {
+            return operand1.CompareTo(operand2) <= 0;
+        }
+
+        #endregion
+
+        public override string ToString() => $"{this.Postcode} ({this.Window})";
     }
 
     public class AppointmentCollection : HashSet<IAppointment>

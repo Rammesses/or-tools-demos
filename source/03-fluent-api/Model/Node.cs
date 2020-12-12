@@ -75,9 +75,8 @@ namespace _03_fluent_api.Model
         }
     }
 
-    public class NodeCollection : SortedSet<INode>
+    public class NodeCollection : List<INode>
     {
-        public INode this[int index] => this.ToList()[index];
     }
 
     public static class NodeExtensions

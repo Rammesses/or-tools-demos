@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace _03_fluent_api.Model
 {
@@ -7,7 +9,7 @@ namespace _03_fluent_api.Model
         string Postcode { get; }
     }
 
-    public class Location : ILocation
+    public class Location : ILocation, IComparable<ILocation>, IComparable
     {
         public Location(string postcode)
         {
@@ -15,6 +17,54 @@ namespace _03_fluent_api.Model
         }
 
         public string Postcode { get; }
+
+        #region IComparable / IComparable<ILocation> implementation
+
+        public int CompareTo([AllowNull] ILocation other)
+        {
+            if (other == null)
+            {
+                return 1;
+            }
+
+            return string.Compare(this.Postcode, other.Postcode);
+        }
+
+        public int CompareTo(object obj)
+        {
+            var other = obj as INode;
+            if (other == null)
+                return 1;
+
+            return this.CompareTo(other);
+        }
+
+        // Define the is greater than operator.
+        public static bool operator >(Location operand1, ILocation operand2)
+        {
+            return operand1.CompareTo(operand2) == 1;
+        }
+
+        // Define the is less than operator.
+        public static bool operator <(Location operand1, ILocation operand2)
+        {
+            return operand1.CompareTo(operand2) == -1;
+        }
+
+        // Define the is greater than or equal to operator.
+        public static bool operator >=(Location operand1, ILocation operand2)
+        {
+            return operand1.CompareTo(operand2) >= 0;
+        }
+
+        // Define the is less than or equal to operator.
+        public static bool operator <=(Location operand1, ILocation operand2)
+        {
+            return operand1.CompareTo(operand2) <= 0;
+        }
+
+        #endregion
+
 
         public override string ToString() => this.Postcode;
     }

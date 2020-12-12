@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using _03_fluent_api.Model;
 using Google.OrTools.ConstraintSolver;
 
 namespace _04_recommending_a_vehicle.Model
 {
-    public class SolutionRoute : Route
+    public class SolutionRoute : IRoute
     {
         public SolutionRoute(
             IRoute solvedRoute,
@@ -15,9 +16,33 @@ namespace _04_recommending_a_vehicle.Model
             Distance = distance;            
         }
 
+        public ILocation this[int index] => throw new NotImplementedException();
+
         public int Distance { get; }
         public IRoute SolvedRoute { get; }
         public Assignment Solution { get; }
+
+        public IVehicle Vehicle => SolvedRoute.Vehicle;
+
+        public ILocation StartLocation => SolvedRoute.StartLocation;
+
+        public ILocation EndLocation => SolvedRoute.EndLocation;
+
+        public NodeCollection Nodes => SolvedRoute.Nodes;
+
+        public void Add(IAppointment appointment)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Add(ILocation location)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerator<ILocation> GetEnumerator() => SolvedRoute.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => SolvedRoute.GetEnumerator();
     }
 
     public class SolutionRouteCollection : HashSet<SolutionRoute>

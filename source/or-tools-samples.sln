@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "03-fluent-api", "03-fluent-
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "04-recommending-a-vehicle", "04-recommending-a-vehicle\04-recommending-a-vehicle.csproj", "{6F95D855-C3C6-4873-8EAB-1E880E298D63}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "03-fluent-api.tests", "03-fluent-api.tests\03-fluent-api.tests.csproj", "{EAAD8930-4EAE-49DD-AB2D-B0FD91BF6C2E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,5 +33,9 @@ Global
 		{6F95D855-C3C6-4873-8EAB-1E880E298D63}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F95D855-C3C6-4873-8EAB-1E880E298D63}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F95D855-C3C6-4873-8EAB-1E880E298D63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAAD8930-4EAE-49DD-AB2D-B0FD91BF6C2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAAD8930-4EAE-49DD-AB2D-B0FD91BF6C2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAAD8930-4EAE-49DD-AB2D-B0FD91BF6C2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAAD8930-4EAE-49DD-AB2D-B0FD91BF6C2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
