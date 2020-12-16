@@ -15,14 +15,23 @@ namespace _03_fluent_api.Model
         public static IAppointmentWindow StartingAt(TimeOfDay start) => new AppointmentWindow(start, Default.End);
         public static IAppointmentWindow EndingAt(TimeOfDay end) => new AppointmentWindow(Default.Start, end);
 
-        public AppointmentWindow()
+        public AppointmentWindow() : this(AppointmentWindow.Default)
         {
-            this.Start = TimeOfDay.MinValue;
-            this.End = TimeOfDay.MaxValue;
         }
+
+        public AppointmentWindow(IAppointmentWindow source)
+            : this(source.Start, source.End)
+        { }
 
         public AppointmentWindow(TimeOfDay start, TimeOfDay end)
         {
+            if (end <= start)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(end),
+                    $"Shift end ({end}) must be after (and not same as) start ({start})");
+            }
+
             this.Start = start;
             this.End = end;
         }
@@ -75,6 +84,16 @@ namespace _03_fluent_api.Model
         public static bool operator <=(AppointmentWindow operand1, IAppointmentWindow operand2)
         {
             return operand1.CompareTo(operand2) <= 0;
+        }
+
+        public static bool operator ==(AppointmentWindow operand1, IAppointmentWindow operand2)
+        {
+            return operand1.CompareTo(operand2) == 0;
+        }
+
+        public static bool operator !=(AppointmentWindow operand1, IAppointmentWindow operand2)
+        {
+            return operand1.CompareTo(operand2) != 0;
         }
 
         #endregion

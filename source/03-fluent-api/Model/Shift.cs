@@ -1,4 +1,6 @@
-﻿namespace _03_fluent_api.Model
+﻿using System;
+
+namespace _03_fluent_api.Model
 {
     public interface IShift
     {
@@ -19,6 +21,13 @@
 
         public Shift(TimeOfDay start, TimeOfDay end)
         {
+            if (end <= start)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(end),
+                    $"Shift end ({end}) must be after (and not same as) start ({start})");
+            }
+
             this.Start = start;
             this.End = end;
         }
