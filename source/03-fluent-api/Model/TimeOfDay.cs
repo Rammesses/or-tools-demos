@@ -7,15 +7,47 @@ namespace _03_fluent_api.Model
         public static readonly long DayInSeconds = Convert.ToInt64(
             TimeSpan.FromDays(1).TotalSeconds);
 
-        public static TimeOfDay MinValue = new TimeOfDay("00:00:00");
-        public static TimeOfDay MaxValue = new TimeOfDay("23:59:59");
+        private static TimeSpan MinTimeSpanValue = new TimeSpan(00, 00, 00);
+        private static TimeSpan MaxTimeSpanValue = new TimeSpan(23, 59, 29);
+
+        public static TimeOfDay MinValue = new TimeOfDay(MinTimeSpanValue);
+        public static TimeOfDay MaxValue = new TimeOfDay(MaxTimeSpanValue);
 
         public static TimeOfDay At(string time) => new TimeOfDay(time);
 
-        public TimeOfDay(string time)
+        public TimeOfDay()
         {
-            this.internalValue = TimeSpan.Parse(time);
+            this.internalValue = MinTimeSpanValue;
         }
+
+        public TimeOfDay(short hours, short minutes, short seconds)
+            : this (new TimeSpan(hours, minutes, seconds))
+        {
+        }
+
+        public TimeOfDay(TimeSpan timeSpan)
+        {
+            var timeToTheSecond = new TimeSpan(timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
+            if (timeToTheSecond < MinTimeSpanValue || timeToTheSecond > MaxTimeSpanValue)
+            {
+                throw new ArgumentOutOfRangeException($"{timeSpan} must be between {MinTimeSpanValue} & {MaxTimeSpanValue}");
+            }
+
+            this.internalValue = timeToTheSecond;
+        }
+
+        public TimeOfDay(string time) : this(TimeSpan.Parse(time))
+        {
+        }
+
+        public TimeOfDay(TimeOfDay time)
+        {
+            this.internalValue = time.AsTimeSpan();
+        }
+
+        public short Hours => (short)this.internalValue.Hours;
+        public short Minutes => (short)this.internalValue.Minutes;
+        public short Seconds => (short)this.internalValue.Seconds;
 
         public override string ToString() => $"{internalValue:g}";
 
@@ -43,6 +75,14 @@ namespace _03_fluent_api.Model
         public static bool operator <=(TimeOfDay operand1, TimeOfDay operand2)
         {
             return operand1.CompareTo(operand2) <= 0;
+        }
+    }
+
+    public static class TimeOfDayExtensions
+    {
+        public static TimeSpan AsTimeSpan(this TimeOfDay time)
+        {
+            return new TimeSpan(time.Hours, time.Minutes, time.Seconds);
         }
     }
 }

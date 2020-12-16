@@ -23,9 +23,6 @@ namespace _03_fluent_api.Model
 
     public class Route : IRoute
     {
-        public IVehicle Vehicle { get; }
-        public AppointmentCollection Appointments { get; } = new AppointmentCollection();
-
         public static IRoute For(IVehicle vehicle) => new Route(vehicle);
 
         public Route(IVehicle vehicle)
@@ -35,37 +32,38 @@ namespace _03_fluent_api.Model
 
         public ILocation StartLocation { get; private set; }
         public ILocation EndLocation { get; private set; }
+        public IVehicle Vehicle { get; }
+        public AppointmentCollection Appointments { get; } = new AppointmentCollection();
+        public NodeCollection Nodes { get; } = new NodeCollection();
+
+        public LocationCollection Locations => Nodes.Select(n => n.Location).AsCollection();
+        public ILocation this[int index] => Nodes[index].Location;
 
         public void Add(IAppointment appointment)
         {
             this.Appointments.Add(appointment);
+
+            var nodeIndex = (this.EndLocation != null) ? this.Nodes.Count - 1 : this.Nodes.Count;
+            if (this.EndLocation != null)
+            {
+                this.Nodes.Insert(nodeIndex, appointment.AsNode(nodeIndex));
+                return;
+            }
+
+            this.Nodes.Add(appointment.AsNode(nodeIndex));
         }
 
         public void Add(INode node)
         {
             IAppointment nodeAppointment = new Appointment(node.Location, AppointmentWindow.Default);
-            this.Appointments.Add(nodeAppointment);
-
-            var nodeIndex = (this.EndLocation != null) ? this.Nodes.Count - 1 : this.Nodes.Count;
-            if (this.EndLocation != null)
-            {
-                this.Nodes.Insert(nodeIndex, nodeAppointment.AsNode(nodeIndex));
-                return;
-            }
-
-            this.Nodes.Add(nodeAppointment.AsNode(nodeIndex));
+            this.Add(nodeAppointment);
         }
 
         public void Add(ILocation location)
         {
-            this.Appointments.Add(new Appointment(location, AppointmentWindow.Default));
+            IAppointment locationAppointment = new Appointment(location, AppointmentWindow.Default);
+            this.Add(locationAppointment);
         }
-
-        public NodeCollection Nodes { get; } = new NodeCollection();
-
-        public LocationCollection Locations => Nodes.Select(n => n.Location).AsCollection();
-
-        public ILocation this[int index] => Nodes[index].Location;
 
         internal void SetStartLocation(ILocation startLocation)
         {
@@ -81,7 +79,7 @@ namespace _03_fluent_api.Model
             IAppointment startAppointment = new Appointment(startLocation, AppointmentWindow.Default);
             this.Nodes.Insert(0, startAppointment.AsNode(0));
 
-            if (this.EndLocation == null || this.EndLocation == originalStartLocation)
+            if (this.EndLocation == null)
             {
                 this.SetEndLocation(startLocation);
             }
@@ -99,6 +97,11 @@ namespace _03_fluent_api.Model
 
             IAppointment endAppointment = new Appointment(endLocation, AppointmentWindow.Default);
             this.Nodes.Add(endAppointment.AsNode(this.Nodes.Count));
+
+            if (this.StartLocation == null)
+            {
+                this.SetStartLocation(endLocation);
+            }    
         }
 
         public IEnumerator<ILocation> GetEnumerator()
