@@ -59,9 +59,17 @@ namespace _03_fluent_api.tests.Model
             (tenAM == elevenAM).Should().BeFalse();
             (tenAM < elevenAM).Should().BeTrue();
             (tenAM > elevenAM).Should().BeFalse();
+
+#pragma warning disable CS1718 // Comparison made to same variable
             (tenAM <= tenAM).Should().BeTrue();
+#pragma warning restore CS1718 // Comparison made to same variable
+
             (tenAM <= elevenAM).Should().BeTrue();
+
+#pragma warning disable CS1718 // Comparison made to same variable
             (tenAM >= tenAM).Should().BeTrue();
+#pragma warning restore CS1718 // Comparison made to same variable
+
             (tenAM >= elevenAM).Should().BeFalse();
 
             (elevenAM < tenAM).Should().BeFalse();
