@@ -101,8 +101,14 @@ namespace _03_fluent_api.Model
                 return;
             }
 
-            // this is where you use the Vehicle shift
-            IAppointment startAppointment = new Appointment(startLocation, AppointmentWindow.Default);
+            // Use the Vehicle shift-start as the window end
+            // i.e. the vehicle is at "home" until shift-start
+            var startAppointmentWindow = new AppointmentWindow(
+                TimeOfDay.MinValue,
+                this.Vehicle.Shift.Start);
+            IAppointment startAppointment = new Appointment(
+                startLocation,
+                startAppointmentWindow);
             this.Nodes.Insert(0, startAppointment.AsNode(0));
 
             if (this.EndLocation == null)
@@ -126,7 +132,15 @@ namespace _03_fluent_api.Model
                 return;
             }
 
-            IAppointment endAppointment = new Appointment(endLocation, AppointmentWindow.Default);
+            // Use the Vehicle shift-end as the window start
+            // i.e. the vehicle is at "home" after shift-end
+            var endAppointmentWindow = new AppointmentWindow(
+                this.Vehicle.Shift.End,
+                TimeOfDay.MaxValue);
+
+            IAppointment endAppointment = new Appointment(
+                endLocation,
+                endAppointmentWindow);
             this.Nodes.Add(endAppointment.AsNode(this.Nodes.Count));
 
             if (this.StartLocation == null)
@@ -188,6 +202,7 @@ namespace _03_fluent_api.Model
             }
 
             Console.WriteLine($" ({route.Nodes.Count} nodes)");
+            Console.CursorLeft = 0;
         }        
     }
 }

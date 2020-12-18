@@ -23,14 +23,12 @@ namespace _04_recommending_a_vehicle
 
         public IProblemModel Problem { get; }
 
-        public Solution RecommendSolutionFor(IAppointment appointmentToAdd)
+        public SolutionSet RecommendSolutionsFor(IAppointment appointmentToAdd)
         {
             var solutionSet = new SolutionSet();
             foreach (var vehicle in Problem.Vehicles)
             {
-
                 var vehicleRoute = Problem.Routes.For(vehicle);
-                vehicleRoute.Print();
 
                 Spinner.Start($"Routing vehicle {vehicle}...", spinner =>
                 {
@@ -48,7 +46,7 @@ namespace _04_recommending_a_vehicle
 
             // choose our recommendation based on the difference in distance metric...
             // i.e. least additional distance to travel
-            return solutionSet.AsSolution(s => s.OrderBy(r => r.DifferenceInDistance).First());
+            return solutionSet;
         }
 
         private SolutionRoute SolveRoute(IRoute routeToSolve)

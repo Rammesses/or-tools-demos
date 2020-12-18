@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using _03_fluent_api.Model;
+using _04_recommending_a_vehicle.Model;
 using Google.OrTools.ConstraintSolver;
 
 namespace _04_recommending_a_vehicle
@@ -8,39 +10,34 @@ namespace _04_recommending_a_vehicle
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("OR-Tools - 04 Recommending a Vehicle");
+            Console.WriteLine("OR-Tools - 04 Recommending a Vehicle\n");
             var problem = RecommendationModel.Create();
 
-            var appointmentToAdd = Appointment.At("RG5 5EE").Between(TimeOfDay.At("09:00:00"), TimeOfDay.At("17:00:00"));
+            var appointmentToAdd = Appointment.At("RG10 10HH").Between(TimeOfDay.At("09:00:00"), TimeOfDay.At("17:00:00"));
 
             var engine = RecommendationEngine.Create(problem);
-            var solution = engine.RecommendSolutionFor(appointmentToAdd);
+            var solutions = engine.RecommendSolutionsFor(appointmentToAdd);
 
-            PrintSolution(problem, solution);
+            PrintSolutions(problem, solutions);
         }
 
         /// <summary>
         ///   Print the solution.
         /// </summary>
-        static void PrintSolution(
+        static void PrintSolutions(
             in ProblemModel problem,
-            in Solution solution)
+            in SolutionSet solutions)
         {
-            if (solution == null)
+            Console.WriteLine("\nConsidered solutions for:");
+            foreach (var considered in solutions)
             {
-                Console.WriteLine("No solution found.");
-                return;
+                Console.WriteLine($" - {considered.Vehicle} - {considered.DifferenceInDistance} additional miles");
             }
 
-            Console.WriteLine($"Vehicle '{solution.OptimalRoute.Vehicle}':");
-            Console.Write("Route: ");
-
-            foreach (var location in solution.OptimalRoute)
-            {
-                Console.WriteLine($"{location}");
-            }
-
-            Console.WriteLine($"Route distance: {solution.OptimalRoute.Distance} miles.");
+            Console.WriteLine("\nOptimal Solution:");
+            var optimal = solutions.AsSolution(s => s.OrderBy(r => r.DifferenceInDistance).First());
+            optimal.OptimalRoute.Print();
+            Console.WriteLine($"Route distance: {optimal.OptimalRoute.Distance} miles.");
         }
     }
 }
