@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace _03_fluent_api.Model
@@ -9,7 +10,7 @@ namespace _03_fluent_api.Model
         TimeOfDay End { get; }
     }
 
-    public class AppointmentWindow : IAppointmentWindow, IComparable<IAppointmentWindow>, IComparable
+    public class AppointmentWindow : IAppointmentWindow, IComparable<IAppointmentWindow>, IComparable, IEquatable<AppointmentWindow>
     {
         public static IAppointmentWindow Default = new AppointmentWindow(TimeOfDay.At("07:00:00"), TimeOfDay.At("22:00:00"));
         public static IAppointmentWindow StartingAt(TimeOfDay start) => new AppointmentWindow(start, Default.End);
@@ -96,9 +97,36 @@ namespace _03_fluent_api.Model
             return operand1.CompareTo(operand2) != 0;
         }
 
+        public static bool operator ==(AppointmentWindow left, AppointmentWindow right)
+        {
+            return EqualityComparer<AppointmentWindow>.Default.Equals(left, right);
+        }
+
+        public static bool operator !=(AppointmentWindow left, AppointmentWindow right)
+        {
+            return !(left == right);
+        }
+
         #endregion
 
         public override string ToString() => $"{Start}-{End}";
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as AppointmentWindow);
+        }
+
+        public bool Equals(AppointmentWindow other)
+        {
+            return other != null &&
+                   EqualityComparer<TimeOfDay>.Default.Equals(Start, other.Start) &&
+                   EqualityComparer<TimeOfDay>.Default.Equals(End, other.End);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Start, End);
+        }
     }
 
     public static class AppointmentWindowExtensions

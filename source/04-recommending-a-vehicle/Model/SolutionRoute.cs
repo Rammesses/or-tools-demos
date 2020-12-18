@@ -40,6 +40,11 @@ namespace _04_recommending_a_vehicle.Model
             throw new NotImplementedException();
         }
 
+        public IRoute Clone()
+        {
+            throw new NotImplementedException();
+        }
+
         public IEnumerator<ILocation> GetEnumerator() => SolvedRoute.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => SolvedRoute.GetEnumerator();

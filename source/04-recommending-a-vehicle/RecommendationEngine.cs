@@ -30,15 +30,12 @@ namespace _04_recommending_a_vehicle
             {
 
                 var vehicleRoute = Problem.Routes.For(vehicle);
-                Console.Write("\n\nProblem: ");
                 vehicleRoute.Print();
 
-                SolutionRoute initialSolution = null;
-                SolutionRoute updatedSolution = null;
                 Spinner.Start($"Routing vehicle {vehicle}...", spinner =>
                 {
                     var timer = Stopwatch.StartNew();
-                    initialSolution = this.SolveRoute(vehicleRoute.Clone());
+                    var initialSolution = this.SolveRoute(vehicleRoute.Clone());
                     
                     vehicleRoute.Add(appointmentToAdd);
                     var updatedSolution = this.SolveRoute(vehicleRoute.Clone());
@@ -47,12 +44,6 @@ namespace _04_recommending_a_vehicle
 
                     spinner.Succeed($"Solved initial and updated routes for {vehicle} in {timer.Elapsed}.");
                 });
-
-                Console.Write("Initial: ");
-                initialSolution.Print();
-
-                Console.Write("Updated: ");
-                updatedSolution.Print();
             }
 
             // choose our recommendation based on the difference in distance metric...
@@ -105,7 +96,6 @@ namespace _04_recommending_a_vehicle
                 var node = routeToSolve.Nodes[nodeIndex];
                 var location = node.Location;
 
-                Debug.WriteLine($"Adding {location}");
                 solvedRoute.Add(location);
                 index = solution.Value(routing.NextVar(index));
             }
