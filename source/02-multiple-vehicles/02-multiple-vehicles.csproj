@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Kurukuru" Version="1.1.0" />
-    <PackageReference Include="Google.OrTools.runtime.osx-x64" Version="8.0.8283" />
+    <PackageReference Include="Google.OrTools.runtime.win-x64" Version="8.0.8283" />
     <PackageReference Include="Google.OrTools" Version="8.0.8283" />
   </ItemGroup>
 

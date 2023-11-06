@@ -16,7 +16,7 @@ namespace _04_recommending_a_vehicle
             return new RecommendationEngine(problem);
         }
 
-        public RecommendationEngine(IProblemModel problem)
+        private RecommendationEngine(IProblemModel problem)
         {
             Problem = problem;
         }

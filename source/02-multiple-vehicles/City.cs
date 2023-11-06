@@ -14,6 +14,11 @@ namespace _02_multiple_vehicles
         St_Louis,
         Houston,
         Phoenix,
-        Salt_Lake_City
+        Salt_Lake_City,
+        Wilmington,
+        Aurora,
+        Carson_City,
+        Redmond,
+        Kissimee
     }
 }
